@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sentinel Shield</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script type="module" src="/assets/js/dashboard.js" defer></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar injetada via JS -->
+        <div id="sidebar-container"></div>
+
+        <div class="main-wrapper">
+            <!-- Topbar injetada via JS -->
+            <div id="topbar-container"></div>
+
+            <main class="content">
+                <header class="page-header">
+                    <h1 class="page-title">Visão Geral do Sistema</h1>
+                    <p class="text-secondary">Acompanhamento e monitoramento de métricas em tempo real.</p>
+                </header>
+
+                <!-- Metrics Cards -->
+                <div class="grid-4">
+                    <div class="glass-panel card">
+                        <div class="card-title">
+                            Vendas (Hoje)
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        </div>
+                        <div class="card-value" id="resumoVendas" style="font-size: 1.5rem; color: var(--text-muted);">Aguardando dados</div>
+                    </div>
+                    
+                    <div class="glass-panel card">
+                        <div class="card-title">
+                            Clientes Ativos
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        </div>
+                        <div class="card-value" id="numeroClientes" style="font-size: 1.5rem; color: var(--text-muted);">--</div>
+                    </div>
+
+                    <div class="glass-panel card">
+                        <div class="card-title">
+                            Acessos Totais
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" stroke-width="2"><path d="M2 12h4l2-9 5 18 3-10 4 4h4"/></svg>
+                        </div>
+                        <div class="card-value" id="totalAcessos">--</div>
+                    </div>
+
+                    <div class="glass-panel card">
+                        <div class="card-title">
+                            Ameaças (Status)
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--error-color)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <div class="card-value" id="totalAmeacas" style="color: var(--error-color);">--</div>
+                    </div>
+                </div>
+
+                <!-- Gráficos Vázios -->
+                <div class="grid-2">
+                    <div class="glass-panel" style="padding: 24px; min-height: 300px; display: flex; flex-direction: column;">
+                        <h3 style="margin-bottom: 24px; font-size: 1rem;">Desempenho de Vendas</h3>
+                        <div class="empty-state" style="flex: 1;">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <path d="M3 9h18"></path>
+                                <path d="M9 21V9"></path>
+                            </svg>
+                            <div class="empty-state-title">Gráfico indisponível</div>
+                            <div class="empty-state-desc">Dados serão exibidos aqui quando o sistema registrar transações no backend.</div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel" style="padding: 24px; min-height: 300px; display: flex; flex-direction: column;">
+                        <h3 style="margin-bottom: 24px; font-size: 1rem;">Distribuição Geográfica</h3>
+                        <div class="empty-state" style="flex: 1;" id="mapEmptyState">
+                            <!-- Será ocultado via JS se houver dados de regiões -->
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="2" y1="12" x2="22" y2="12"></line>
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                            </svg>
+                            <div class="empty-state-title">Mapa indisponível</div>
+                            <div class="empty-state-desc">Aguardando dados de localização do backend.</div>
+                        </div>
+                        <div class="table-responsive" id="regionsContainer" style="display: none; max-height: 250px; overflow-y: auto;">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Região</th>
+                                        <th style="text-align: right;">Acessos</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="regionsList"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Logs e Atividades Recentes -->
+                <div class="glass-panel" style="padding: 24px;">
+                    <h3 style="margin-bottom: 24px; font-size: 1rem;">Atividades Recentes de Segurança</h3>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Data/Hora</th>
+                                    <th>Evento</th>
+                                    <th>IP</th>
+                                    <th>Dispositivo</th>
+                                    <th>Usuário</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logsTableBody">
+                                <tr><td colspan="5" style="text-align: center; padding: 32px;"><span class="spinner" style="border-color: var(--text-secondary); border-top-color: transparent;"></span></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+</body>
+</html>

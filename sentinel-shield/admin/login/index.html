@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentinel Shield - Administração</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script type="module" src="/assets/js/auth.js" defer></script>
+</head>
+<body>
+    <div class="login-container">
+        <div class="glass-panel login-box">
+            <div class="login-logo">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="url(#grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;">
+                    <defs>
+                        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#10b981;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                Sentinel
+            </div>
+            <p class="text-secondary" style="margin-bottom: 30px;">Acesso restrito ao sistema de segurança</p>
+
+            <div id="errorAlert" class="alert error"></div>
+
+            <form id="loginForm" autocomplete="off">
+                <div class="form-group">
+                    <label class="form-label" for="username">Identificação do Administrador</label>
+                    <input type="text" id="username" name="username" class="form-input" placeholder="Usuário" required spellcheck="false" autocomplete="off">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 30px;">
+                    <label class="form-label" for="password">Credencial de Segurança</label>
+                    <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" id="submitBtn" class="btn-primary">Acessar Painel</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

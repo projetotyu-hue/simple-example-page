@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoramento - Sentinel Shield</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar injetada via JS -->
+        <div id="sidebar-container"></div>
+
+        <div class="main-wrapper">
+            <!-- Topbar injetada via JS -->
+            <div id="topbar-container"></div>
+
+            <main class="content">
+                <header class="page-header">
+                    <h1 class="page-title">Monitoramento</h1>
+                    <p class="text-secondary">Segurança de Infraestrutura</p>
+                </header>
+
+                <div class="glass-panel empty-state">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <h2 class="empty-state-title">Nenhum dado disponível</h2>
+                    <p class="empty-state-desc">
+                        Análise de acessos em tempo real. <br><br>
+                        Aguardando conexão com as APIs reais do sistema.
+                    </p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script type="module">
+        import { renderSidebar } from '/assets/js/components/sidebar.js';
+        import { renderTopbar } from '/assets/js/components/topbar.js';
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSidebar('monitoring');
+            renderTopbar();
+        });
+    </script>
+</body>
+</html>
