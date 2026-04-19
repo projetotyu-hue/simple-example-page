@@ -1,1 +1,0 @@
-import{r as i}from"./vendor-react-MLj_6mGN.js";const s="ttq_event_";function n(t){return sessionStorage.getItem(`${s}${t}`)==="1"}function c(t){sessionStorage.setItem(`${s}${t}`,"1")}function u(t,o=!0,r){const e=i.useCallback(()=>{n(t)||window.ttq&&(window.ttq.track(t,r),c(t),console.log(`[TikTok Pixel] ${t} fired`))},[t,r]);return i.useEffect(()=>{o&&e()},[o,e]),e}export{u};
