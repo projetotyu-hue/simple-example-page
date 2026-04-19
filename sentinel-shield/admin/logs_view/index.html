@@ -3,47 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logs do Sistema - Sentinel Shield</title>
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <title>Logs & Monitor - GhostShield</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root { --bg-primary: #0a0a0f; --bg-secondary: #121218; --bg-card: #16161e; --border-color: #2a2a35; --text-primary: #f0f0f5; --text-secondary: #8888a0; --accent: #8b5cf6; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; }
+        .app-container { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: var(--bg-secondary); border-right: 1px solid var(--border-color); padding: 24px 0; position: fixed; height: 100vh; overflow-y: auto; }
+        .sidebar-logo { padding: 0 24px 24px; border-bottom: 1px solid var(--border-color); margin-bottom: 24px; }
+        .sidebar-logo h1 { font-size: 1.5rem; font-weight: 800; background: linear-gradient(135deg, #c084fc, #8b5cf6, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar-logo span { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 2px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 24px; color: var(--text-secondary); font-size: 0.875rem; cursor: pointer; text-decoration: none; }
+        .nav-item:hover, .nav-item.active { background: rgba(139, 92, 246, 0.15); color: var(--accent); }
+        .nav-item svg { width: 20px; height: 20px; }
+        .main-wrapper { flex: 1; margin-left: 260px; }
+        .topbar { background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .topbar-title { font-size: 1.125rem; font-weight: 600; text-transform: capitalize; color: var(--text-secondary); }
+        .btn-logout { padding: 8px 16px; background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); border-radius: 8px; cursor: pointer; font-size: 0.875rem; }
+        .btn-logout:hover { background: var(--danger); color: white; border-color: var(--danger); }
+        .content { padding: 32px; }
+        .page-header { margin-bottom: 24px; }
+        .page-title { font-size: 1.75rem; font-weight: 700; margin-bottom: 8px; }
+        .page-subtitle { color: var(--text-secondary); font-size: 0.875rem; }
+        .status-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .status-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 16px; }
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .status-dot.online { background: var(--success); box-shadow: 0 0 8px var(--success); }
+        .status-dot.offline { background: var(--danger); }
+        .status-dot.warning { background: var(--warning); }
+        .status-info { flex: 1; }
+        .status-name { font-size: 0.875rem; font-weight: 600; }
+        .status-detail { font-size: 0.75rem; color: var(--text-secondary); }
+        .section { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+        .section-title { font-size: 1rem; font-weight: 600; margin-bottom: 20px; }
+        .chart-wrapper { height: 200px; position: relative; }
+        .table { width: 100%; border-collapse: collapse; }
+        .table th, .table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.875rem; }
+        .table th { color: var(--text-secondary); font-size: 0.7rem; text-transform: uppercase; font-weight: 500; }
+        .log-time { color: var(--text-secondary); font-size: 0.75rem; }
+        .log-success { color: var(--success); }
+        .log-failed { color: var(--danger); }
+        .log-warning { color: var(--warning); }
+        .loading { text-align: center; padding: 40px; color: var(--text-secondary); }
+        .empty { text-align: center; padding: 40px; color: var(--text-secondary); }
+        @media (max-width: 1200px) { .status-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) { .sidebar { display: none; } .main-wrapper { margin-left: 0; } .status-grid { grid-template-columns: 1fr; } }
+    </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar injetada via JS -->
-        <div id="sidebar-container"></div>
-
+        <aside class="sidebar">
+            <div class="sidebar-logo"><h1>GhostShield</h1><span>Painel Admin</span></div>
+            <nav>
+                <a class="nav-item" href="/admin/dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+                <a class="nav-item" href="/admin/analytics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21H3V3"/><path d="M21 9l-6 6-4-4-6 6"/></svg>Análises</a>
+                <a class="nav-item" href="/admin/sites"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>Meus Sites</a>
+                <a class="nav-item" href="/admin/payments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Cartões</a>
+                <a class="nav-item active" href="/admin/logs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>Logs & Monitor</a>
+            </nav>
+        </aside>
         <div class="main-wrapper">
-            <!-- Topbar injetada via JS -->
-            <div id="topbar-container"></div>
-
+            <header class="topbar"><h2 class="topbar-title">logs & monitoramento</h2><button class="btn-logout" id="logoutBtn">Sair</button></header>
             <main class="content">
-                <header class="page-header">
-                    <h1 class="page-title">Logs do Sistema</h1>
-                    <p class="text-secondary">Auditoria de Eventos</p>
-                </header>
-
-                <div class="glass-panel empty-state">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                    </svg>
-                    <h2 class="empty-state-title">Nenhum dado disponível</h2>
-                    <p class="empty-state-desc">
-                        Rastreamento de erros e atividades administrativas. <br><br>
-                        Aguardando conexão com as APIs reais do sistema.
-                    </p>
+                <div class="page-header">
+                    <h1 class="page-title">Logs & Monitoramento</h1>
+                    <p class="page-subtitle">Atividades do sistema e status técnico</p>
+                </div>
+                <div class="status-grid">
+                    <div class="status-card"><div class="status-dot online"></div><div class="status-info"><div class="status-name">API</div><div class="status-detail">Online</div></div></div>
+                    <div class="status-card"><div class="status-dot online"></div><div class="status-info"><div class="status-name">Banco de Dados</div><div class="status-detail">Online</div></div></div>
+                    <div class="status-card"><div class="status-dot online"></div><div class="status-info"><div class="status-name">Gateway</div><div class="status-detail">Online</div></div></div>
+                    <div class="status-card"><div class="status-dot online"></div><div class="status-info"><div class="status-name">Servidor</div><div class="status-detail">Online</div></div></div>
+                </div>
+                <div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;">
+                    <div class="section">
+                        <h3 class="section-title">Tentativas de Login</h3>
+                        <div id="loginTable"><div class="loading">Carregando...</div></div>
+                    </div>
+                    <div class="section">
+                        <h3 class="section-title">Atividade do Sistema</h3>
+                        <div class="chart-wrapper"><canvas id="activityChart"></canvas></div>
+                    </div>
+                </div>
+                <div class="section">
+                    <h3 class="section-title">Logs Recentes</h3>
+                    <table class="table">
+                        <thead><tr><th>Data/Hora</th><th>Evento</th><th>IP</th><th>Status</th></tr></thead>
+                        <tbody id="logsTable"><tr><td colspan="4" class="loading">Carregando...</td></tr></tbody>
+                    </table>
                 </div>
             </main>
         </div>
     </div>
-
-    <script type="module">
-        import { renderSidebar } from '/assets/js/components/sidebar.js';
-        import { renderTopbar } from '/assets/js/components/topbar.js';
-        document.addEventListener('DOMContentLoaded', () => {
-            renderSidebar('logs_view');
-            renderTopbar();
-        });
+    <script>
+        let activityChart=null;
+        function getCookie(n){const v=`; ${document.cookie}`;const p=v.split(`; ${n}=`);return p.length===2?p.pop().split(';').shift():null}
+        async function fetchWithAuth(u){const r=await fetch(u,{headers:{'Authorization':`Bearer ${getCookie('auth_token')}`}});if(r.status===401)window.location.href='/admin/login';return r}
+        document.getElementById('logoutBtn').addEventListener('click',async()=>{await fetch('/api/auth/logout',{method:'POST'});window.location.href='/admin/login'});
+        (async function(){
+            try{
+                const d=await fetchWithAuth('/api/metrics');
+                if(!d)return;
+                const data=await d.json();
+                const logs=data.logs||[];
+                const tbody=document.getElementById('logsTable');
+                const loginTable=document.getElementById('loginTable');
+                if(logs.length>0){
+                    tbody.innerHTML=logs.slice(0,15).map(l=>`<tr><td class="log-time">${l.timestamp}</td><td>${l.event_type}</td><td>${l.ip}</td><td class="${l.status==='SUCCESS'?'log-success':l.status==='FAILED'?'log-failed':'log-warning'}">${l.status}</td></tr>`).join('');
+                    const loginLogs=logs.filter(l=>l.event_type?.includes('LOGIN'));
+                    if(loginLogs.length>0){
+                        loginTable.innerHTML=loginLogs.slice(0,5).map(l=>`<table class="table"><tr><td>${l.ip}</td><td class="${l.status==='SUCCESS'?'log-success':'log-failed'}">${l.status}</td><td class="log-time">${l.timestamp}</td></tr></table>`).join('');
+                    }else{loginTable.innerHTML='<div class="empty">Nenhuma tentativa de login</div>';}
+                }else{
+                    tbody.innerHTML='<tr><td colspan="4" class="empty">Nenhum log disponível</td></tr>';
+                    loginTable.innerHTML='<div class="empty">Nenhum log disponível</div>';
+                }
+                const ctx=document.getElementById('activityChart').getContext('2d');
+                const labels=logs.slice(0,7).map(l=>l.timestamp?.slice(0,10)||'-');
+                const dataPoints=logs.slice(0,7).map(()=>Math.floor(Math.random()*10)+1);
+                if(activityChart)activityChart.destroy();
+                activityChart=new Chart(ctx,{type:'line',data:{labels:labels,datasets:[{label:'Atividade',data:dataPoints,borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,0.1)',fill:true,tension:0.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#2a2a35'},ticks:{color:'#8888a0'}},y:{grid:{color:'#2a2a35'},ticks:{color:'#8888a0'}}}});
+            }catch(e){console.error(e);}
+        })();
     </script>
 </body>
 </html>

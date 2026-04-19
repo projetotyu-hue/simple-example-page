@@ -1,7 +1,7 @@
 import bcrypt
 import jwt
 import datetime
-from backend.db import get_db_connection
+from db import get_db_connection
 
 SECRET_KEY = "super_secret_secure_key_sentinel_shield" # Em prod, usar variável de ambiente
 

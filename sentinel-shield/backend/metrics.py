@@ -1,4 +1,4 @@
-from backend.db import get_db_connection
+from db import get_db_connection
 
 def record_metric(ip, country, state, city, device, os_name, browser, origin):
     """Records an access metric to the database"""

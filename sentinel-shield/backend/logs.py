@@ -1,4 +1,4 @@
-from backend.db import get_db_connection
+from db import get_db_connection
 
 def log_event(event_type, username, ip, status, device):
     """Logs an event to the database"""

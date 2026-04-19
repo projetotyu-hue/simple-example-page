@@ -61,6 +61,52 @@ def setup_db():
     )
     ''')
 
+    # Create security_logs table
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS security_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        event_type TEXT NOT NULL,
+        description TEXT,
+        risk TEXT,
+        details TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+    ''')
+
+    # Create pageviews table
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS pageviews (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        page TEXT NOT NULL,
+        ip TEXT,
+        referrer TEXT,
+        device TEXT,
+        os TEXT,
+        browser TEXT,
+        country TEXT,
+        state TEXT,
+        city TEXT,
+        session_id TEXT,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+    ''')
+
+    # Create sales table
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS sales (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        product_name TEXT,
+        amount REAL,
+        status TEXT DEFAULT 'pending',
+        customer_name TEXT,
+        customer_email TEXT,
+        payment_method TEXT,
+        transaction_id TEXT,
+        ip TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+    ''')
+
     # Insert default admin if not exists
     cursor.execute('SELECT id FROM users WHERE username = ?', ('admin',))
     if not cursor.fetchone():

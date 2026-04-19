@@ -1,65 +1,115 @@
-import { api } from '/assets/js/api.js';
-import { renderSidebar } from '/assets/js/components/sidebar.js';
-import { renderTopbar } from '/assets/js/components/topbar.js';
+const API_BASE = '';
 
-document.addEventListener('DOMContentLoaded', async () => {
-    renderSidebar('dashboard');
-    renderTopbar();
-    
+async function fetchWithAuth(url) {
+    const res = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${getCookie('auth_token')}` }
+    });
+    if (res.status === 401) {
+        window.location.href = '/admin/login';
+        return null;
+    }
+    return res;
+}
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
+async function loadDashboard() {
     try {
-        const data = await api.getMetrics();
-        if (data) {
-            renderDashboard(data);
+        const res = await fetchWithAuth('/api/analytics/dashboard');
+        if (!res) return;
+        const data = await res.json();
+
+        document.getElementById('totalSales').textContent = data.total_pageviews || '0';
+        document.getElementById('totalRevenue').textContent = `R$ ${(data.revenue || 0).toFixed(2)}`;
+        document.getElementById('totalClients').textContent = data.total_cards || '0';
+        document.getElementById('pendingPayments').textContent = data.pending_payments || '0';
+        document.getElementById('salesChange').textContent = 'Carregando dados...';
+        document.getElementById('revenueChange').textContent = 'Carregando dados...';
+        document.getElementById('totalClients').textContent = data.total_cards || '0';
+        document.getElementById('clientsChange').textContent = `${data.total_cards || 0} cartões capturados`;
+        document.getElementById('pendingChange').textContent = `${data.pending_payments || 0} pendentes`;
+
+        if (data.top_states && data.top_states.length > 0) {
+            const regionsList = document.getElementById('regionsList');
+            if (regionsList) {
+                regionsList.innerHTML = data.top_states.map(s => `
+                    <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color);">
+                        <span style="color: var(--text-secondary);">${s.state}</span>
+                        <span style="font-weight: 600;">${s.count}</span>
+                    </div>
+                `).join('');
+            }
         }
     } catch (e) {
-        console.error("Failed to load metrics", e);
+        console.error(e);
     }
-});
+}
 
-function renderDashboard(data) {
-    document.getElementById('totalAcessos').textContent = data.metrics.total_accesses || '--';
-    
-    const threatCount = data.logs.filter(l => l.status === 'FAILED').length;
-    document.getElementById('totalAmeacas').textContent = threatCount || '--';
+async function loadActivity() {
+    try {
+        const res = await fetchWithAuth('/api/metrics');
+        if (!res) return;
+        const data = await res.json();
+        const activityList = document.getElementById('activityList');
+        if (activityList && data.logs) {
+            activityList.innerHTML = data.logs.slice(0, 10).map(log => `
+                <div class="activity-item">
+                    <div class="activity-icon blue">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">${log.event_type}</div>
+                        <div class="activity-meta">${log.ip} • ${log.timestamp}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
 
-    const tbody = document.getElementById('logsTableBody');
-    if (data.logs && data.logs.length > 0) {
-        tbody.innerHTML = '';
-        data.logs.forEach(log => {
-            const tr = document.createElement('tr');
-            const badgeClass = log.status === 'SUCCESS' ? 'success' : 'error';
-            const dateStr = new Date(log.timestamp).toLocaleString();
-            
-            tr.innerHTML = `
-                <td>${dateStr}</td>
-                <td><span class="badge ${badgeClass}">${log.event_type}</span></td>
-                <td>${log.ip}</td>
-                <td>${log.device}</td>
-                <td>${log.username || '-'}</td>
-            `;
-            tbody.appendChild(tr);
+function setupNavigation() {
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const page = item.dataset.page;
+            if (page) {
+                window.location.href = `/admin/${page}`;
+            }
         });
-    } else {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 32px; color: var(--text-muted);">Nenhuma atividade registrada ainda.</td></tr>';
-    }
+    });
+}
 
-    const regionsList = document.getElementById('regionsList');
-    const regionsContainer = document.getElementById('regionsContainer');
-    const mapEmptyState = document.getElementById('mapEmptyState');
-    
-    const regions = data.metrics.regions || {};
-    if (Object.keys(regions).length === 0) {
-        mapEmptyState.style.display = 'flex';
-        regionsContainer.style.display = 'none';
-    } else {
-        mapEmptyState.style.display = 'none';
-        regionsContainer.style.display = 'block';
-        regionsList.innerHTML = '';
-        const sorted = Object.entries(regions).sort((a,b) => b[1] - a[1]);
-        sorted.forEach(([state, count]) => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${state}</td><td style="text-align: right; font-weight: 600;">${count}</td>`;
-            regionsList.appendChild(tr);
+function setupLogout() {
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            await fetch('/api/auth/logout', { method: 'POST' });
+            window.location.href = '/admin/login';
         });
     }
 }
+
+function setupTimeFilter() {
+    const buttons = document.querySelectorAll('.time-filter-btn');
+    buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setupNavigation();
+    setupLogout();
+    setupTimeFilter();
+    loadDashboard();
+    loadActivity();
+});
