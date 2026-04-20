@@ -7,7 +7,6 @@ import path from "node:path";
 export default defineConfig({
   plugins: [
     tanstackStart({
-      target: "cloudflare-module",
       customViteReactPlugin: true,
     }),
     viteReact(),
