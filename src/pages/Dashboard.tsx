@@ -1,37 +1,25 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Activity, Users, Globe, ScrollText } from "lucide-react";
 
-export const Route = createFileRoute("/admin/")({
-  component: DashboardPage,
-});
-
 async function fetchOverview() {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-
-  const [metricsTotal, metrics24h, logsTotal, distinctIps] = await Promise.all([
+  const [m, m24, l, ips] = await Promise.all([
     supabase.from("metrics").select("id", { count: "exact", head: true }),
     supabase.from("metrics").select("id", { count: "exact", head: true }).gte("created_at", since),
     supabase.from("logs").select("id", { count: "exact", head: true }),
     supabase.from("metrics").select("ip").not("ip", "is", null).limit(1000),
   ]);
-
-  const uniqueIps = new Set((distinctIps.data ?? []).map((r) => r.ip)).size;
-
   return {
-    totalVisits: metricsTotal.count ?? 0,
-    visits24h: metrics24h.count ?? 0,
-    totalLogs: logsTotal.count ?? 0,
-    uniqueIps,
+    totalVisits: m.count ?? 0,
+    visits24h: m24.count ?? 0,
+    totalLogs: l.count ?? 0,
+    uniqueIps: new Set((ips.data ?? []).map((r) => r.ip)).size,
   };
 }
 
-function DashboardPage() {
-  const { data, isLoading } = useQuery({
-    queryKey: ["dashboard-overview"],
-    queryFn: fetchOverview,
-  });
+export default function DashboardPage() {
+  const { data, isLoading } = useQuery({ queryKey: ["overview"], queryFn: fetchOverview });
 
   const stats = [
     { label: "Visitas totais", value: data?.totalVisits ?? 0, icon: Activity, color: "text-primary" },
@@ -49,10 +37,7 @@ function DashboardPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {stats.map((s) => (
-          <div
-            key={s.label}
-            className="p-5 rounded-xl bg-card border border-border hover:border-primary/40 transition-colors"
-          >
+          <div key={s.label} className="p-5 rounded-xl bg-card border hover:border-primary/40 transition-colors">
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm text-muted-foreground">{s.label}</span>
               <s.icon className={`size-4 ${s.color}`} />
@@ -64,19 +49,11 @@ function DashboardPage() {
         ))}
       </div>
 
-      <div className="p-6 rounded-xl bg-card border border-border">
+      <div className="p-6 rounded-xl bg-card border">
         <h2 className="text-lg font-semibold mb-2">Como começar</h2>
         <p className="text-sm text-muted-foreground mb-4">
-          O banco está vazio. Insira eventos para popular as métricas e logs:
+          O banco está vazio. Insira eventos pelo Lovable Cloud ou via uma rota de tracking pública (a criar).
         </p>
-        <div className="space-y-2 text-sm">
-          <div className="p-3 rounded-md bg-muted/50 font-mono text-xs">
-            POST {typeof window !== "undefined" ? window.location.origin : ""}/api/track
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Envie eventos via API (rota pública) ou diretamente pelo Lovable Cloud.
-          </p>
-        </div>
       </div>
     </div>
   );
