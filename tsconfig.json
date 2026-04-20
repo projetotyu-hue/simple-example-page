@@ -21,12 +21,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "ES2022",
-    "types": [
-      "node",
-      "vite/client"
-    ],
-    "verbatimModuleSyntax": false
+    "target": "ES2022"
   },
   "include": [
     "src",
