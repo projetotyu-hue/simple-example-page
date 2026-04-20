@@ -21,7 +21,7 @@ import {
   XCircle
 } from "lucide-react";
 
-export const Route = createFileRoute("/admin")({
+export const Route = createFileRoute("/admin/")({
   component: AdminPage,
   head: () => ({
     meta: [
