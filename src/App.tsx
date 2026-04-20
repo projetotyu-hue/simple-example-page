@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { supabase } from "./lib/supabase";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import StorePage from "./pages/StorePage";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -21,8 +20,6 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<StorePage />} />
-        <Route path="/store" element={<StorePage />} />
         <Route path="/admin/login" element={<Login />} />
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/products" element={<Dashboard />} />
@@ -30,7 +27,7 @@ function App() {
         <Route path="/admin/clients" element={<Dashboard />} />
         <Route path="/admin/payments" element={<Dashboard />} />
         <Route path="/admin/analytics" element={<Dashboard />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
   );
