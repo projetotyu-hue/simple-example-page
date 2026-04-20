@@ -6,9 +6,7 @@ import path from "node:path";
 
 export default defineConfig({
   plugins: [
-    tanstackStart({
-      customViteReactPlugin: true,
-    }),
+    tanstackStart(),
     viteReact(),
     tailwindcss(),
   ],
