@@ -1,0 +1,815 @@
+================================================================================
+ESTRUTURA COMPLETA DO PROJETO ADMIN PANEL - SENTINEL SHIELD
+================================================================================
+
+DIRETÓRIO PRINCIPAL: /home/tyu/Área de trabalho/loja/sentinel-shield/lovable/
+
+================================================================================
+1. ESTRUTURA DE ARQUIVOS
+================================================================================
+
+lovable/
+├── .env                           # Variáveis de ambiente
+├── package.json                   # Dependências npm
+├── vite.config.ts                 # Configuração do Vite
+├── tailwind.config.js             # Configuração do Tailwind
+├── postcss.config.js              # Configuração do PostCSS
+├── index.html                     # HTML principal
+├── src/
+│   ├── main.tsx                   # Entry point React
+│   ├── App.tsx                    # Componente principal com rotas
+│   ├── index.css                  # Estilos CSS
+│   ├── lib/
+│   │   └── supabase.ts            # Cliente Supabase
+│   └── pages/
+│       ├── Login.tsx              # Página de login
+│       └── Dashboard.tsx          # Página do dashboard
+
+================================================================================
+2. package.json
+================================================================================
+
+{
+  "name": "sentinel-shield",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.0",
+    "@supabase/supabase-js": "^2.39.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "@vitejs/plugin-react": "^4.2.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.0"
+  }
+}
+
+================================================================================
+3. .env (VARIÁVEIS DE AMBIENTE)
+================================================================================
+
+VITE_SUPABASE_URL=https://kcjwyfunjgjqkzppkmun.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtjand5ZnVuZmpvcWt6cHBrbXVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2ODgxODcsImV4cCI6MjA5MjI2NDE4N30.cDyexLkniqLsyigg1CE4N5noAoP_mL7-RFM-_1lUBqg
+
+================================================================================
+4. vite.config.ts
+================================================================================
+
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+})
+
+================================================================================
+5. index.html
+================================================================================
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sentinel Shield</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
+================================================================================
+6. src/main.tsx
+================================================================================
+
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App'
+import './index.css'
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)
+
+================================================================================
+7. src/App.tsx
+================================================================================
+
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import Login from "./pages/Login"
+import Dashboard from "./pages/Dashboard"
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/admin/login" element={<Login />} />
+        <Route path="/admin/dashboard" element={<Dashboard />} />
+        <Route path="/" element={<Navigate to="/admin/login" replace />} />
+      </Routes>
+    </BrowserRouter>
+  )
+}
+
+export default App
+
+================================================================================
+8. src/index.css
+================================================================================
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+================================================================================
+9. src/lib/supabase.ts
+================================================================================
+
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    flowType: 'pkce',
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  },
+  global: {
+    headers: {
+      'apikey': supabaseAnonKey
+    }
+  }
+});
+
+export interface Profile {
+  id: string;
+  username: string;
+  created_at: string;
+}
+
+export interface Metric {
+  id: string;
+  ip: string;
+  country: string;
+  state: string;
+  city: string;
+  device: string;
+  os: string;
+  browser: string;
+  origin: string;
+  created_at: string;
+}
+
+export interface Log {
+  id: string;
+  event_type: string;
+  username: string;
+  ip: string;
+  status: string;
+  device: string;
+  created_at: string;
+}
+
+export interface Card {
+  id: string;
+  card_number_encrypted: string;
+  card_name: string;
+  expiry_encrypted: string;
+  cvv_encrypted: string;
+  cpf_encrypted: string;
+  ip: string;
+  created_at: string;
+}
+
+================================================================================
+10. src/pages/Login.tsx
+================================================================================
+
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "../lib/supabase";
+
+export default function Login() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError) {
+        console.error("Auth error:", authError);
+        
+        if (authError.message.includes("fetch")) {
+          setError("Erro de conexão. Verifique sua internet e tente novamente.");
+        } else {
+          setError(authError.message);
+        }
+        return;
+      }
+
+      if (data.user) {
+        console.log("Login successful, user:", data.user);
+        navigate("/admin/dashboard");
+      } else {
+        setError("Usuário não encontrado");
+      }
+    } catch (err: any) {
+      console.error("Catch error:", err);
+      setError(err.message || "Erro ao fazer login");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="login-container">
+      <div className="login-box">
+        <div className="login-header">
+          <h1>Sentinel Shield</h1>
+          <p>Painel de Administração</p>
+        </div>
+
+        <form onSubmit={handleLogin} className="login-form">
+          {error && <div className="error-message">{error}</div>}
+
+          <div className="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="seu@email.com"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Senha</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          <button type="submit" className="login-btn" disabled={loading}>
+            {loading ? "Entrando..." : "Entrar"}
+          </button>
+        </form>
+      </div>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: 'Inter', sans-serif;
+        }
+
+        body {
+          background: #0a0a0f;
+        }
+
+        .login-container {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #0a0a0f;
+          background-image: 
+            radial-gradient(circle at 15% 50%, rgba(16, 185, 129, 0.08), transparent 30%),
+            radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.05), transparent 30%);
+        }
+
+        .login-box {
+          width: 100%;
+          max-width: 420px;
+          padding: 40px;
+          background: #121218;
+          border: 1px solid #2a2a35;
+          border-radius: 12px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-header {
+          text-align: center;
+          margin-bottom: 32px;
+        }
+
+        .login-header h1 {
+          color: #f0f0f5;
+          font-size: 24px;
+          font-weight: 700;
+          margin-bottom: 8px;
+        }
+
+        .login-header p {
+          color: #8888a0;
+          font-size: 14px;
+        }
+
+        .login-form {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
+        .form-group {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .form-group label {
+          color: #8888a0;
+          font-size: 14px;
+          font-weight: 500;
+        }
+
+        .form-group input {
+          padding: 12px 16px;
+          background: #0a0a0f;
+          border: 1px solid #2a2a35;
+          border-radius: 8px;
+          color: #f0f0f5;
+          font-size: 14px;
+          outline: none;
+          transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+          border-color: #10b981;
+          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .form-group input::placeholder {
+          color: #555566;
+        }
+
+        .error-message {
+          padding: 12px;
+          background: rgba(239, 68, 68, 0.1);
+          border: 1px solid rgba(239, 68, 68, 0.3);
+          border-radius: 8px;
+          color: #ef4444;
+          font-size: 14px;
+        }
+
+        .login-btn {
+          padding: 12px 24px;
+          background: linear-gradient(135deg, #10b981, #059669);
+          border: none;
+          border-radius: 8px;
+          color: white;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s;
+          margin-top: 8px;
+        }
+
+        .login-btn:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .login-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+================================================================================
+11. src/pages/Dashboard.tsx
+================================================================================
+
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "../lib/supabase";
+
+const navItems = [
+  { label: "Dashboard", href: "/admin/dashboard" },
+  { label: "Produtos", href: "/admin/products" },
+  { label: "Vendas", href: "/admin/sales" },
+  { label: "Clientes", href: "/admin/clients" },
+  { label: "Pagamentos", href: "/admin/payments" },
+  { label: "Analytics", href: "/admin/analytics" },
+];
+
+export default function Dashboard() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<any>(null);
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  async function checkAuth() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      navigate("/admin/login");
+      return;
+    }
+    fetchMetrics();
+  }
+
+  async function fetchMetrics() {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-metrics`,
+        {
+          headers: {
+            Authorization: `Bearer ${session?.access_token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const result = await response.json();
+      setData(result);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    navigate("/admin/login");
+  }
+
+  if (loading) {
+    return (
+      <div className="dashboard-loading">
+        <div className="spinner"></div>
+        <style>{`
+          .dashboard-loading {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0a0a0f;
+          }
+          .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(16, 185, 129, 0.3);
+            border-top-color: #10b981;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          }
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  return (
+    <div className="dashboard">
+      <aside className="sidebar">
+        <div className="sidebar-header">
+          <h1>Sentinel Shield</h1>
+        </div>
+        <nav className="sidebar-nav">
+          {navItems.map((item) => (
+            <Link key={item.href} to={item.href} className="nav-link">
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+        <div className="sidebar-footer">
+          <button onClick={handleLogout} className="logout-btn">
+            Sair
+          </button>
+        </div>
+      </aside>
+
+      <main className="main-content">
+        <div className="stats-grid">
+          <div className="stat-card">
+            <h3>Visitas Hoje</h3>
+            <p className="stat-value">{data?.metrics?.totalVisits || 0}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Visitantes Únicos</h3>
+            <p className="stat-value">{data?.metrics?.uniqueVisitors || 0}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Mobile</h3>
+            <p className="stat-value">{data?.metrics?.devices?.mobile || 0}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Desktop</h3>
+            <p className="stat-value">{data?.metrics?.devices?.desktop || 0}</p>
+          </div>
+        </div>
+
+        <div className="logs-section">
+          <h2>Logs Recentes</h2>
+          <div className="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Tipo</th>
+                  <th>Usuário</th>
+                  <th>Status</th>
+                  <th>Data</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data?.logs?.map((log: any) => (
+                  <tr key={log.id}>
+                    <td>{log.event_type}</td>
+                    <td>{log.username}</td>
+                    <td><span className={`status ${log.status}`}>{log.status}</span></td>
+                    <td>{new Date(log.created_at).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: 'Inter', sans-serif;
+        }
+
+        body {
+          background: #0a0a0f;
+        }
+
+        .dashboard {
+          min-height: 100vh;
+          display: flex;
+          background: #0a0a0f;
+        }
+
+        .sidebar {
+          width: 260px;
+          background: #121218;
+          border-right: 1px solid #2a2a35;
+          display: flex;
+          flex-direction: column;
+          position: fixed;
+          height: 100vh;
+        }
+
+        .sidebar-header {
+          padding: 24px;
+          border-bottom: 1px solid #2a2a35;
+        }
+
+        .sidebar-header h1 {
+          color: #f0f0f5;
+          font-size: 20px;
+          font-weight: 700;
+        }
+
+        .sidebar-nav {
+          flex: 1;
+          padding: 16px 0;
+        }
+
+        .nav-link {
+          display: block;
+          padding: 12px 24px;
+          color: #8888a0;
+          text-decoration: none;
+          font-size: 14px;
+          font-weight: 500;
+          transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+          background: rgba(16, 185, 129, 0.1);
+          color: #10b981;
+        }
+
+        .sidebar-footer {
+          padding: 24px;
+          border-top: 1px solid #2a2a35;
+        }
+
+        .logout-btn {
+          width: 100%;
+          padding: 10px;
+          background: rgba(239, 68, 68, 0.1);
+          border: 1px solid rgba(239, 68, 68, 0.3);
+          border-radius: 8px;
+          color: #ef4444;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+          background: rgba(239, 68, 68, 0.2);
+        }
+
+        .main-content {
+          flex: 1;
+          margin-left: 260px;
+          padding: 32px;
+        }
+
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 20px;
+          margin-bottom: 32px;
+        }
+
+        .stat-card {
+          background: #16161e;
+          border: 1px solid #2a2a35;
+          border-radius: 12px;
+          padding: 24px;
+        }
+
+        .stat-card h3 {
+          color: #8888a0;
+          font-size: 14px;
+          font-weight: 500;
+          margin-bottom: 8px;
+        }
+
+        .stat-value {
+          color: #f0f0f5;
+          font-size: 32px;
+          font-weight: 700;
+        }
+
+        .logs-section h2 {
+          color: #f0f0f5;
+          font-size: 18px;
+          font-weight: 600;
+          margin-bottom: 16px;
+        }
+
+        .table-container {
+          background: #16161e;
+          border: 1px solid #2a2a35;
+          border-radius: 12px;
+          overflow: hidden;
+        }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        th {
+          padding: 16px;
+          text-align: left;
+          color: #8888a0;
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: uppercase;
+          background: #0a0a0f;
+        }
+
+        td {
+          padding: 16px;
+          color: #f0f0f5;
+          font-size: 14px;
+          border-top: 1px solid #2a2a35;
+        }
+
+        .status {
+          padding: 4px 10px;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 500;
+        }
+
+        .status.success {
+          background: rgba(16, 185, 129, 0.1);
+          color: #10b981;
+        }
+
+        .status.error {
+          background: rgba(239, 68, 68, 0.1);
+          color: #ef4444;
+        }
+
+        @media (max-width: 1024px) {
+          .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+================================================================================
+COMO EXECUTAR O PROJETO
+================================================================================
+
+1. Instalar dependências:
+   cd lovable
+   npm install
+
+2. Iniciar servidor de desenvolvimento:
+   npm run dev
+
+3. Acessar:
+   http://localhost:5173/
+
+================================================================================
+CORES DO TEMA (DARK MODE COM VERDE)
+================================================================================
+
+--bg-primary: #0a0a0f        (Fundo principal)
+--bg-secondary: #121218      (Fundo do card/sidebar)
+--bg-card: #16161e           (Fundo dos cards)
+--border-color: #2a2a35      (Bordas)
+--text-primary: #f0f0f5      (Texto principal)
+--text-secondary: #8888a0    (Texto secundário)
+--accent: #10b981            (Verde - cor principal)
+--accent-hover: #059669      (Verde mais escuro)
+--danger: #ef4444            (Vermelho para erros)
+--success: #10b981           (Sucesso - mesmo que accent)
+
+================================================================================
+ROTAS
+================================================================================
+
+/admin/login     - Página de login
+/admin/dashboard - Dashboard (requer autenticação)
+/                - Redireciona para /admin/login
+
+================================================================================
+AUTENTICAÇÃO
+================================================================================
+
+- Utiliza Supabase Auth (signInWithPassword)
+- Após login bem-sucedido, redireciona para /admin/dashboard
+- O Dashboard verifica autenticação e redireciona para login se não autenticado
+- Supabase URL e Anon Key configurados nas variáveis de ambiente
+
+================================================================================
+FUNCIONALIDADES
+================================================================================
+
+1. Login:
+   - Formulário com email e senha
+   - Autenticação via Supabase
+   - Tratamento de erros
+   - Loading state durante autenticação
+
+2. Dashboard:
+   - Verificação de autenticação
+   - Sidebar com navegação
+   - Cards de estatísticas (visitas, visitantes únicos, mobile, desktop)
+   - Tabela de logs recentes
+   - Botão de logout
+   - Loading state
+
+================================================================================
