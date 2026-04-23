@@ -1,0 +1,10 @@
+SENTINEL-SHIELD PROJECT STRUCTURE AND FILE ANALYSIS
+====================================================
+
+This document provides a detailed overview of each file in the sentinel-shield project to facilitate AI-assisted recreation.
+
+PROJECT OVERVIEW:
+- A web application with both frontend (React/TypeScript) and backend (Python) components
+- Appears to be a security/monitoring dashboard application
+- Uses Supabase for backend services
+- Includes payment processing capabilities

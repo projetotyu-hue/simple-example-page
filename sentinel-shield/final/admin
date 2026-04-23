@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#ff6e36" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="format-detection" content="telephone=no" />
+    
+    <title>Achadinhos da Vitrine | Ofertas Imperdíveis</title>
+    <meta name="description" content="Achadinhos da Vitrine - As melhores ofertas com frete grátis. Até 97% OFF em produtos selecionados. Compre agora!">
+    <meta name="author" content="Hypertech" />
+    
+    <!-- DNS Prefetch for external resources -->
+    <link rel="dns-prefetch" href="//pay.pedidosfeitos.shop">
+    <link rel="dns-prefetch" href="//analytics.tiktok.com">
+    
+    
+    
+    
+    <!-- Preconnect to critical origins -->
+    <link rel="preconnect" href="https://pay.pedidosfeitos.shop" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Resource hints for faster loading -->
+    <link rel="modulepreload" href="/assets/main-C3TAP7qF.tsx">
+
+    <!-- Critical CSS inline for faster FCP -->
+    <style>
+      body { margin: 0; font-family: system-ui, -apple-system, sans-serif; }
+      #root { min-height: 100vh; }
+      .loading-skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+      @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    </style>
+    
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/af5a3107-69f6-4cc3-ae23-3caabc6220e4/id-preview-6054ac86--8c3f00d0-551c-4f11-bd61-df328d916e62.lovable.app-1773974297624.png">
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@Lovable" />
+    <meta name="twitter:image" content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/af5a3107-69f6-4cc3-ae23-3caabc6220e4/id-preview-6054ac86--8c3f00d0-551c-4f11-bd61-df328d916e62.lovable.app-1773974297624.png">
+    
+    <!-- TikTok Pixel Code Start -->
+    <script>
+    !function (w, d, t) {
+      w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(
+      var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script")
+      ;n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+
+        ttq.load('D6DOUEBC77U3BV5J70MG');
+        ttq.page();
+    }(window, document, 'ttq');
+    </script>
+    <!-- TikTok Pixel Code End -->
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  <meta property="og:title" content="Achadinhos da Vitrine | Ofertas Imperdíveis">
+  <meta name="twitter:title" content="Achadinhos da Vitrine | Ofertas Imperdíveis">
+  <meta property="og:description" content="Achadinhos da Vitrine - As melhores ofertas com frete grátis. Até 97% OFF em produtos selecionados. Compre agora!">
+  <meta name="twitter:description" content="Achadinhos da Vitrine - As melhores ofertas com frete grátis. Até 97% OFF em produtos selecionados. Compre agora!">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <script type="module" crossorigin src="/assets/index-Czm-4tLr.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/vendor-react-MLj_6mGN.js">
+  <link rel="modulepreload" crossorigin href="/assets/vendor-ui-cQdDygt4.js">
+  <link rel="modulepreload" crossorigin href="/assets/vendor-utils-DtV_yn2S.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-Bv6v4Poy.css">
+<script defer src="/~flock.js" data-proxy-url="/~api/analytics"></script></head>
+
+  <body>
+    <div id="root"></div>
+    
+    
+
+    <!-- WAU Counter -->
+    <div style="display: none;">
+      <script id="_waudvx">
+        var _wau = _wau || [];
+        _wau.push(["small", "3dxza28lzc", "dvx"]);
+      </script>
+      <script async src="//waust.at/s.js"></script>
+    </div>
+  </body>
+</html>
