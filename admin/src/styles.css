@@ -1,0 +1,249 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design system definition.
+ *
+ * The @theme inline block maps CSS custom properties to Tailwind utility
+ * classes (e.g. --color-primary -> bg-primary, text-primary).
+ *
+ * The :root and .dark blocks define the actual color values using oklch.
+ * All colors MUST use oklch format.
+ *
+ * To add a new semantic color:
+ * 1. Add the variable to :root (light value) and .dark (dark value)
+ * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-shop-bg: var(--shop-bg);
+  --color-shop-primary: var(--shop-primary);
+  --color-shop-primary-hover: var(--shop-primary-hover);
+  --color-shop-text: var(--shop-text);
+  --color-shop-text-muted: var(--shop-text-muted);
+  --color-shop-border: var(--shop-border);
+  --color-shop-search: var(--shop-search);
+  --color-shop-coupon: var(--shop-coupon);
+  --color-shop-price: var(--shop-price);
+  --color-shop-discount: var(--shop-discount);
+}
+
+:root {
+  --radius: 0.625rem;
+  /* VS Code style: dark blue-gray background, blue accent */
+  --background: oklch(0.13 0.01 280);
+  --foreground: oklch(0.92 0.01 280);
+  --card: oklch(0.16 0.01 280);
+  --card-foreground: oklch(0.92 0.01 280);
+  --popover: oklch(0.16 0.01 280);
+  --popover-foreground: oklch(0.92 0.01 280);
+  --primary: oklch(0.62 0.15 280);
+  --primary-foreground: oklch(0.13 0.01 280);
+  --primary-glow: oklch(0.62 0.15 280);
+  --secondary: oklch(0.20 0.01 280);
+  --secondary-foreground: oklch(0.92 0.01 280);
+  --muted: oklch(0.18 0.01 280);
+  --muted-foreground: oklch(0.55 0.02 280);
+  --accent: oklch(0.62 0.15 280);
+  --accent-foreground: oklch(0.13 0.01 280);
+  --destructive: oklch(0.55 0.20 27);
+  --destructive-foreground: oklch(0.92 0.01 280);
+  --border: oklch(0.25 0.01 280);
+  --input: oklch(0.20 0.01 280);
+  --ring: oklch(0.62 0.15 280);
+  --sidebar-bg: oklch(0.14 0.01 280);
+  --gradient-primary: linear-gradient(135deg, oklch(0.65 0.16 275), oklch(0.62 0.15 280));
+  --gradient-logo: linear-gradient(135deg, oklch(0.65 0.16 275), oklch(0.62 0.15 280));
+  --shadow-glow: 0 10px 40px -10px oklch(0.62 0.15 280 / 0.4);
+  --chart-1: oklch(0.62 0.15 280);
+  --chart-2: oklch(0.65 0.12 285);
+  --chart-3: oklch(0.58 0.18 275);
+  --chart-4: oklch(0.68 0.14 290);
+  --chart-5: oklch(0.55 0.16 270);
+  --sidebar: oklch(0.14 0.01 280);
+  --sidebar-foreground: oklch(0.92 0.01 280);
+  --sidebar-primary: oklch(0.62 0.15 280);
+  --sidebar-primary-foreground: oklch(0.13 0.01 280);
+  --sidebar-accent: oklch(0.20 0.01 280);
+  --sidebar-accent-foreground: oklch(0.62 0.15 280);
+  --sidebar-border: oklch(0.25 0.01 280);
+  --sidebar-ring: oklch(0.62 0.15 280);
+  /* Shop (public store) tokens — light theme */
+  --shop-bg: oklch(0.97 0.005 280);
+  --shop-primary: oklch(0.62 0.15 280);
+  --shop-primary-hover: oklch(0.56 0.15 280);
+  --shop-text: oklch(0.20 0.01 280);
+  --shop-text-muted: oklch(0.55 0.01 280);
+  --shop-border: oklch(0.92 0.005 280);
+  --shop-search: oklch(0.96 0.005 280);
+  --shop-coupon: oklch(0.97 0.025 280);
+  --shop-price: oklch(0.55 0.18 145);
+  --shop-discount: oklch(0.96 0.04 15);
+}
+
+.dark {
+  --background: oklch(0.13 0.01 280);
+  --foreground: oklch(0.92 0.01 280);
+  --card: oklch(0.16 0.01 280);
+  --card-foreground: oklch(0.92 0.01 280);
+  --popover: oklch(0.16 0.01 280);
+  --popover-foreground: oklch(0.92 0.01 280);
+  --primary: oklch(0.62 0.15 280);
+  --primary-foreground: oklch(0.13 0.01 280);
+  --secondary: oklch(0.20 0.01 280);
+  --secondary-foreground: oklch(0.92 0.01 280);
+  --muted: oklch(0.18 0.01 280);
+  --muted-foreground: oklch(0.55 0.02 280);
+  --accent: oklch(0.62 0.15 280);
+  --accent-foreground: oklch(0.13 0.01 280);
+  --destructive: oklch(0.55 0.20 27);
+  --destructive-foreground: oklch(0.92 0.01 280);
+  --border: oklch(0.25 0.01 280);
+  --input: oklch(0.20 0.01 280);
+  --ring: oklch(0.62 0.15 280);
+  --chart-1: oklch(0.62 0.15 280);
+  --chart-2: oklch(0.65 0.12 285);
+  --chart-3: oklch(0.58 0.18 275);
+  --chart-4: oklch(0.68 0.14 290);
+  --chart-5: oklch(0.55 0.16 270);
+  --sidebar: oklch(0.14 0.01 280);
+  --sidebar-foreground: oklch(0.92 0.01 280);
+  --sidebar-primary: oklch(0.62 0.15 280);
+  --sidebar-primary-foreground: oklch(0.13 0.01 280);
+  --sidebar-accent: oklch(0.20 0.01 280);
+  --sidebar-accent-foreground: oklch(0.62 0.15 280);
+  --sidebar-border: oklch(0.25 0.01 280);
+  --sidebar-ring: oklch(0.62 0.15 280);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+
+  /* Custom scrollbar for sidebar and admin panel */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: oklch(0.16 0.01 280 / 0.5);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.25 0.01 280);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.62 0.15 280 / 0.5);
+  }
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: oklch(0.25 0.01 280) oklch(0.16 0.01 280 / 0.5);
+  }
+
+  /* Fix hardcoded classes in admin-content HTML */
+  .admin-html-content .bg-white {
+    background-color: var(--color-card) !important;
+  }
+
+  .admin-html-content .border-gray-100 {
+    border-color: var(--color-border) !important;
+  }
+
+  .admin-html-content .border-gray-200 {
+    border-color: var(--color-border) !important;
+  }
+
+  .admin-html-content .text-gray-800 {
+    color: var(--color-foreground) !important;
+  }
+
+  .admin-html-content .text-gray-400 {
+    color: var(--color-muted-foreground) !important;
+  }
+
+  .admin-html-content .text-gray-300 {
+    color: var(--color-muted-foreground) !important;
+  }
+
+  .admin-html-content .bg-rose-600 {
+    background-color: var(--color-primary) !important;
+  }
+
+  .admin-html-content .hover\:bg-rose-700:hover {
+    background-color: oklch(0.56 0.15 280) !important;
+  }
+
+  .admin-html-content .bg-rose-100 {
+    background-color: oklch(0.62 0.15 280 / 0.1) !important;
+  }
+
+  .admin-html-content .text-rose-600 {
+    color: var(--color-primary) !important;
+  }
+
+  .admin-html-content .text-rose-400 {
+    color: var(--color-primary) !important;
+  }
+
+  .admin-html-content select,
+  .admin-html-content input {
+    background-color: var(--color-background) !important;
+    color: var(--color-foreground) !important;
+    border-color: var(--color-border) !important;
+  }
+}

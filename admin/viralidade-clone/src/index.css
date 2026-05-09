@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #FF2B56;
+  --color-primary-hover: #E61B46;
+  --color-teal: #00BCD4;
+  --color-teal-hover: #00ACC1;
+  --font-sans: "Inter", "system-ui", "sans-serif";
+}
+
+:root {
+  --background: #F5F5F5;
+  --surface: #FFFFFF;
+  --text-main: #1A1A1A;
+  --text-muted: #757575;
+  --border: #EEEEEE;
+}
+
+body {
+  @apply bg-[#F5F5F5] text-[#1A1A1A] antialiased;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@layer components {
+  .shopee-container {
+    @apply max-w-[480px] mx-auto bg-white min-h-screen relative shadow-xl;
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-white font-bold py-4 rounded-xl transition-all active:scale-95 text-center uppercase tracking-wider;
+  }
+  
+  .shopee-input {
+    @apply w-full bg-gray-50 border border-gray-100 rounded-xl px-4 py-3.5 text-sm outline-none focus:border-primary/30 transition-all;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

@@ -1,0 +1,89 @@
+import { useState, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import CheckoutHeader from '../components/checkout/CheckoutHeader'
+import CheckoutFooter from '../components/checkout/CheckoutFooter'
+import GlobalTimer from '../components/checkout/GlobalTimer'
+import SocialProofCard from '../components/checkout/SocialProofCard'
+import ToastNotification from '../components/checkout/ToastNotification'
+import StepDados from '../components/checkout/StepDados'
+import StepRevisao from '../components/checkout/StepRevisao'
+import StepPIX from '../components/checkout/StepPIX'
+import Footer from '../components/Footer'
+import { useCheckout } from '../context/CheckoutContext'
+import { validateStep1 } from '../components/checkout/StepDados'
+import type { CheckoutStep } from '../types/checkout'
+
+const pageVariants = {
+  initial: { opacity: 0, x: 300 },
+  animate: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: -300 },
+}
+
+export default function CheckoutPage() {
+  const { state, dispatch } = useCheckout()
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+
+  const handleStepChange = useCallback(
+    (newStep: CheckoutStep) => {
+      dispatch({ type: 'SET_STEP', payload: newStep })
+    },
+    [dispatch]
+  )
+
+  const handleFooterClick = () => {
+    if (state.step === 1) {
+      const errors = validateStep1(state.form)
+      if (Object.keys(errors).length > 0) {
+        dispatch({ type: 'SET_ERRORS', errors })
+        return
+      }
+      dispatch({ type: 'CLEAR_ERRORS' })
+      handleStepChange(2)
+    } else if (state.step === 2) {
+      handleStepChange(3)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      <div className="max-w-[480px] mx-auto bg-white min-h-screen flex flex-col" style={{ padding: '0 0' }}>
+        <CheckoutHeader step={state.step} />
+        <GlobalTimer />
+
+        <div className="flex-1 relative overflow-hidden" style={{ padding: '0 16px' }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={state.step}
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+            >
+              {state.step === 1 && <StepDados />}
+              {state.step === 2 && <StepRevisao onNext={() => handleStepChange(3)} />}
+              {state.step === 3 && <StepPIX />}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        <CheckoutFooter
+          step={state.step}
+          isSubmitting={state.isSubmitting}
+          onClick={handleFooterClick}
+        />
+      </div>
+
+      {/* Popups centralizados na tela */}
+      <SocialProofCard />
+      {toast && (
+        <ToastNotification
+          message={toast.message}
+          type={toast.type}
+          isVisible={!!toast}
+          onClose={() => setToast(null)}
+        />
+      )}
+    </div>
+  )
+}

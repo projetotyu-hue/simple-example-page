@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  EXPIRED
+  REFUNDED
+}
+
+model Transaction {
+  id            String   @id @default(uuid())
+  transactionId String   @unique
+  amount        Decimal
+  fee           Decimal?
+  netAmount     Decimal?
+  status        PaymentStatus @default(PENDING)
+  qrCodeUrl     String?
+  qrCodeBase64  String?
+  copyPaste     String?
+  payerName     String?
+  payerDocument String?
+  description   String?
+  expiresAt     DateTime?
+  paidAt        DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  webhookEvents Json?
+
+  @@index([transactionId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Cashout {
+  id              String   @id @default(uuid())
+  amount          Decimal
+  withdrawalMethod String
+  pixKeyType      String?
+  pixKey           String?
+  status           String   @default("PENDING")
+  description      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Log {
+  id        String   @id @default(uuid())
+  level     String
+  message   String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([level])
+  @@index([createdAt])
+}

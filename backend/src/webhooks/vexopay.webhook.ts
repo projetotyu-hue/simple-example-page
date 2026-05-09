@@ -1,0 +1,160 @@
+import type { Request, Response } from 'express'
+import { log, logWebhook, LogLevel } from '../utils/logger'
+import {
+  getTransactionByTransactionId,
+  updateTransactionStatus,
+  db,
+} from '../services/database.service'
+import type { WebhookPayload } from '../types/vexopay'
+import { supabase } from '../services/supabase.service'
+
+/**
+ * Processa webhooks da VexoPay
+ *
+ * Eventos esperados:
+ * - payment.completed
+ * - payment.failed
+ * - payment.expired
+ */
+export async function handleVexoWebhook(req: Request, res: Response) {
+  try {
+    const payload = req.body as WebhookPayload
+
+    // Validação básica do payload
+    if (!payload || !payload.event || !payload.data) {
+      await log(LogLevel.WARN, 'Webhook recebido com payload inválido', { body: req.body })
+      return res.status(400).json({ error: 'Payload inválido' })
+    }
+
+    const { event, data } = payload
+
+    await log(LogLevel.WEBHOOK, `Webhook recebido: ${event}`, {
+      transactionId: data.transactionId,
+      amount: data.amount,
+      status: data.status,
+    })
+
+    // Salva evento no banco (para auditoria) - SQLite
+    const transaction = getTransactionByTransactionId(data.transactionId)
+
+    if (!transaction) {
+      await log(LogLevel.WARN, 'Webhook para transação não encontrada no banco', {
+        transactionId: data.transactionId,
+      })
+      // Mesmo assim retornamos 200 para o VexoPay não reenviar
+      return res.json({ success: true, message: 'Evento recebido (transação não encontrada localmente)' })
+    }
+
+    // Processa de acordo com o evento
+    switch (event) {
+      case 'payment.completed':
+        await handlePaymentCompleted(data, transaction)
+        break
+      case 'payment.failed':
+        await handlePaymentFailed(data, transaction)
+        break
+      case 'payment.expired':
+        await handlePaymentExpired(data, transaction)
+        break
+      default:
+        await log(LogLevel.WARN, `Evento de webhook não reconhecido: ${event}`, { data })
+    }
+
+    // Responde 200 para o VexoPay não reenviar
+    return res.json({ success: true, message: 'Evento processado com sucesso' })
+  } catch (error: any) {
+    console.error('[Webhook] Erro ao processar webhook:', error)
+
+    await log(LogLevel.ERROR, 'Erro ao processar webhook', {
+      error: error.message,
+      stack: error.stack,
+    })
+
+    // Sempre retornamos 200 para webhooks, mesmo em caso de erro
+    return res.json({ success: true, message: 'Evento recebido (erro interno tratado)' })
+  }
+}
+
+async function handlePaymentCompleted(data: any, transaction: any) {
+  // Atualiza banco SQLite
+  updateTransactionStatus(data.transactionId, {
+    status: 'paid',
+    paidAt: new Date().toISOString(),
+  })
+
+  // Atualiza pedido no Supabase
+  if (supabase) {
+    try {
+      const { data: order, error } = await supabase
+        .from('orders')
+        .update({
+          status: 'paid',
+          updated_at: new Date().toISOString(),
+          payment_method: 'pix',
+        })
+        .eq('transaction_id', data.transactionId)
+        .select()
+        .single()
+
+      if (error) {
+        console.error('[Webhook] Erro ao atualizar pedido no Supabase:', error)
+      } else {
+        await log(LogLevel.INFO, 'Pedido atualizado no Supabase para PAID', {
+          transactionId: data.transactionId,
+          orderId: order?.id,
+        })
+      }
+    } catch (err: any) {
+      console.error('[Webhook] Erro ao atualizar Supabase:', err)
+    }
+  }
+
+  await log(LogLevel.INFO, 'Pagamento confirmado com sucesso', {
+    transactionId: data.transactionId,
+    amount: data.amount,
+  })
+}
+
+async function handlePaymentFailed(data: any, transaction: any) {
+  updateTransactionStatus(data.transactionId, {
+    status: 'failed',
+  })
+
+  // Atualiza no Supabase
+  if (supabase) {
+    try {
+      await supabase
+        .from('orders')
+        .update({ status: 'failed', updated_at: new Date().toISOString() })
+        .eq('transaction_id', data.transactionId)
+    } catch (err) {
+      console.error('[Webhook] Erro ao atualizar falha no Supabase:', err)
+    }
+  }
+
+  await log(LogLevel.WARN, 'Pagamento falhou', {
+    transactionId: data.transactionId,
+  })
+}
+
+async function handlePaymentExpired(data: any, transaction: any) {
+  updateTransactionStatus(data.transactionId, {
+    status: 'expired',
+  })
+
+  // Atualiza no Supabase
+  if (supabase) {
+    try {
+      await supabase
+        .from('orders')
+        .update({ status: 'expired', updated_at: new Date().toISOString() })
+        .eq('transaction_id', data.transactionId)
+    } catch (err) {
+      console.error('[Webhook] Erro ao atualizar expiração no Supabase:', err)
+    }
+  }
+
+  await log(LogLevel.WARN, 'Pagamento expirado', {
+    transactionId: data.transactionId,
+  })
+}
