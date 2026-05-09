@@ -1,0 +1,10 @@
+{
+  "name": "site-final",
+  "private": true,
+  "workspaces": ["loja", "admin", "backend"],
+  "scripts": {
+    "install-all": "npm run install --workspaces",
+    "dev-all": "npm run dev --workspaces",
+    "build-all": "npm run build --workspaces"
+  }
+}
